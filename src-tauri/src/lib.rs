@@ -17,7 +17,21 @@ struct AppSettings {
 #[tauri::command]
 fn read_caddyfile() -> Result<String, String> {
     let home = std::env::var("HOME").map_err(|e| e.to_string())?;
-    let caddyfile_path = PathBuf::from(home).join("caddy").join("Caddyfile");
+    let caddy_dir = PathBuf::from(&home).join("caddy");
+    let caddyfile_path = caddy_dir.join("Caddyfile");
+    
+    // Ensure directory exists
+    if !caddy_dir.exists() {
+        fs::create_dir_all(&caddy_dir)
+            .map_err(|e| format!("Failed to create caddy directory: {}", e))?;
+    }
+    
+    // If Caddyfile doesn't exist, create a default one
+    if !caddyfile_path.exists() {
+        let default_content = "# Caddy Configuration\n\n# Example:\n# localhost:8080 {\n#     respond \"Hello, world!\"\n# }\n";
+        fs::write(&caddyfile_path, default_content)
+            .map_err(|e| format!("Failed to create default Caddyfile: {}", e))?;
+    }
     
     fs::read_to_string(caddyfile_path)
         .map_err(|e| format!("Failed to read Caddyfile: {}", e))
@@ -37,17 +51,107 @@ fn reload_caddy() -> Result<String, String> {
     let home = std::env::var("HOME").map_err(|e| e.to_string())?;
     let caddyfile_path = PathBuf::from(home).join("caddy").join("Caddyfile");
     
-    let output = Command::new("caddy")
+    // Find the actual caddy binary
+    let caddy_path = find_caddy_binary();
+    
+    let output = Command::new(caddy_path)
         .arg("reload")
         .arg("--config")
-        .arg(caddyfile_path)
+        .arg(&caddyfile_path)
         .output()
         .map_err(|e| format!("Failed to execute caddy reload: {}", e))?;
     
     if output.status.success() {
         Ok(String::from_utf8_lossy(&output.stdout).to_string())
     } else {
-        Err(String::from_utf8_lossy(&output.stderr).to_string())
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        // Check if Caddy is running
+        if stderr.contains("connection refused") || stderr.contains("no such process") {
+            // Try to start Caddy first
+            let start_output = Command::new(find_caddy_binary())
+                .arg("run")
+                .arg("--config")
+                .arg(&caddyfile_path)
+                .arg("--adapter")
+                .arg("caddyfile")
+                .spawn();
+                
+            match start_output {
+                Ok(_) => Ok("Caddy started with configuration".to_string()),
+                Err(e) => Err(format!("Failed to start Caddy: {}", e))
+            }
+        } else {
+            Err(stderr.to_string())
+        }
+    }
+}
+
+// Helper function to find caddy binary
+fn find_caddy_binary() -> String {
+    let paths = [
+        "/opt/homebrew/bin/caddy",
+        "/usr/local/bin/caddy",
+        "/usr/bin/caddy",
+    ];
+    
+    for path in &paths {
+        if PathBuf::from(path).exists() {
+            return path.to_string();
+        }
+    }
+    
+    // Fallback to just "caddy" and hope it's in PATH
+    "caddy".to_string()
+}
+
+#[tauri::command]
+fn start_caddy_service() -> Result<String, String> {
+    // Start Caddy using brew services (if available)
+    let output = Command::new("brew")
+        .args(&["services", "start", "caddy"])
+        .output();
+    
+    match output {
+        Ok(result) if result.status.success() => {
+            Ok("Caddy service started".to_string())
+        }
+        _ => {
+            // Fallback: start Caddy manually in background
+            let home = std::env::var("HOME").map_err(|e| e.to_string())?;
+            let caddyfile_path = PathBuf::from(home).join("caddy").join("Caddyfile");
+            
+            Command::new(find_caddy_binary())
+                .arg("start")
+                .arg("--config")
+                .arg(caddyfile_path)
+                .spawn()
+                .map_err(|e| format!("Failed to start Caddy: {}", e))?;
+            
+            Ok("Caddy started in background".to_string())
+        }
+    }
+}
+
+#[tauri::command]
+fn stop_caddy_service() -> Result<String, String> {
+    // Try brew services first
+    let brew_output = Command::new("brew")
+        .args(&["services", "stop", "caddy"])
+        .output();
+    
+    // Also try direct stop
+    Command::new(find_caddy_binary())
+        .arg("stop")
+        .output()
+        .ok();
+    
+    match brew_output {
+        Ok(result) if result.status.success() => {
+            Ok("Caddy service stopped".to_string())
+        }
+        _ => {
+            Ok("Caddy stopped".to_string())
+        }
     }
 }
 
@@ -89,6 +193,20 @@ fn save_settings(settings: AppSettings) -> Result<(), String> {
 
 #[tauri::command]
 fn check_caddy_installed() -> Result<bool, String> {
+    // Check common Caddy installation paths
+    let paths = [
+        "/opt/homebrew/bin/caddy",  // Apple Silicon homebrew
+        "/usr/local/bin/caddy",      // Intel homebrew
+        "/usr/bin/caddy",            // System
+    ];
+    
+    for path in &paths {
+        if PathBuf::from(path).exists() {
+            return Ok(true);
+        }
+    }
+    
+    // Also check if it's in PATH
     let output = Command::new("which")
         .arg("caddy")
         .output()
@@ -99,6 +217,17 @@ fn check_caddy_installed() -> Result<bool, String> {
 
 #[tauri::command]
 fn install_caddy() -> Result<String, String> {
+    // First check if homebrew is installed
+    let brew_check = Command::new("which")
+        .arg("brew")
+        .output()
+        .map_err(|e| format!("Failed to check homebrew: {}", e))?;
+    
+    if !brew_check.status.success() {
+        return Err("Homebrew is not installed. Please install it from https://brew.sh".to_string());
+    }
+    
+    // Install Caddy using homebrew
     let output = Command::new("brew")
         .args(&["install", "caddy"])
         .output()
@@ -107,17 +236,33 @@ fn install_caddy() -> Result<String, String> {
     if output.status.success() {
         Ok("Caddy installed successfully".to_string())
     } else {
-        Err(String::from_utf8_lossy(&output.stderr).to_string())
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        if stderr.contains("already installed") {
+            Ok("Caddy is already installed".to_string())
+        } else {
+            Err(stderr.to_string())
+        }
     }
 }
 
 #[tauri::command]
 fn uninstall_caddy() -> Result<String, String> {
     // Stop caddy first
-    Command::new("caddy")
+    let caddy_path = find_caddy_binary();
+    Command::new(&caddy_path)
         .arg("stop")
         .output()
         .ok();
+    
+    // Check if homebrew is available
+    let brew_check = Command::new("which")
+        .arg("brew")
+        .output()
+        .map_err(|e| format!("Failed to check homebrew: {}", e))?;
+    
+    if !brew_check.status.success() {
+        return Err("Cannot uninstall: Homebrew not found".to_string());
+    }
     
     // Uninstall via brew
     let output = Command::new("brew")
@@ -262,6 +407,8 @@ pub fn run() {
             check_caddy_installed,
             install_caddy,
             uninstall_caddy,
+            start_caddy_service,
+            stop_caddy_service,
             enable_system_tray,
             disable_system_tray,
             set_dock_visibility,
