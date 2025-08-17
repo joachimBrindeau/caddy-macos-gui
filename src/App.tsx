@@ -200,12 +200,12 @@ function App() {
           </div>
         </div>
         
-        <Card className="flex-1 flex flex-col">
+        <Card className="flex-1 flex flex-col overflow-hidden py-0">
           <CardContent className="flex-1 flex flex-col p-0">
                   {sites.length > 0 ? (
                     <div className="flex-1 overflow-auto">
                       <Table>
-                      <TableHeader className="sticky top-0 bg-background border-b">
+                      <TableHeader className="bg-muted/50">
                         <TableRow>
                           <TableHead>Domain</TableHead>
                           <TableHead>Port</TableHead>
