@@ -7,12 +7,11 @@ cask "caddy-gui" do
   desc "A clean, modern GUI for managing Caddy server configurations on macOS"
   homepage "https://github.com/joachimBrindeau/caddy-macos-gui"
 
-  # Specify minimum macOS version
   depends_on macos: ">= :big_sur"
 
   app "Caddy GUI.app"
 
-  # Post-install: Remove quarantine
+  # Post-install: Remove quarantine attributes automatically
   postflight do
     system_command "/usr/bin/xattr",
                    args: ["-cr", "#{appdir}/Caddy GUI.app"],
@@ -25,6 +24,5 @@ cask "caddy-gui" do
     "~/Library/Preferences/com.joachim.caddy-gui.plist",
     "~/Library/Saved Application State/com.joachim.caddy-gui.savedState",
     "~/.caddy-gui",
-    "~/caddy/Caddyfile",
   ]
 end
