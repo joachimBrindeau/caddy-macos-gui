@@ -11,7 +11,6 @@ import { Trash2, RefreshCw, Globe, Pencil, Check, X, ExternalLink } from 'lucide
 // UI Components
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Card, CardContent } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -200,20 +199,18 @@ function App() {
           </div>
         </div>
         
-        <Card className="flex-1 flex flex-col overflow-hidden py-0">
-          <CardContent className="flex-1 flex flex-col p-0">
-                  {sites.length > 0 ? (
-                    <div className="flex-1 overflow-auto">
-                      <Table>
-                      <TableHeader className="bg-muted/50">
-                        <TableRow>
-                          <TableHead>Domain</TableHead>
-                          <TableHead>Port</TableHead>
-                          <TableHead>Status</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
+        <div className="flex-1 border rounded-lg overflow-hidden">
+          {sites.length > 0 ? (
+            <Table>
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  <TableHead>Domain</TableHead>
+                  <TableHead>Port</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                         {sites.map((site, index) => (
                           <TableRow key={index}>
                             <TableCell className="font-medium">
@@ -319,20 +316,18 @@ function App() {
                             </TableCell>
                           </TableRow>
                         ))}
-                      </TableBody>
-                    </Table>
-                    </div>
-                  ) : (
-                    <div className="p-6">
-                      <Alert>
-                        <AlertDescription>
-                          No sites configured. Click the + button to add your first site.
-                        </AlertDescription>
-                      </Alert>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+              </TableBody>
+            </Table>
+          ) : (
+            <div className="flex-1 flex items-center justify-center p-6">
+              <Alert className="max-w-md">
+                <AlertDescription>
+                  No sites configured. Click the + button to add your first site.
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
+        </div>
       </div>
       </div>
     </TooltipProvider>
