@@ -8,6 +8,13 @@ Due to the app not being signed with an Apple Developer certificate, macOS will 
 
 ### Quick Install (Recommended)
 
+#### Option 1: Homebrew (Best - No Gatekeeper Issues)
+```bash
+# Install with Homebrew (automatically handles quarantine)
+curl -sSL https://raw.githubusercontent.com/joachimBrindeau/caddy-macos-gui/main/caddy-gui.rb | brew install --cask /dev/stdin
+```
+
+#### Option 2: Direct Install Script
 ```bash
 # Download and run the installer script
 curl -sSL https://raw.githubusercontent.com/joachimBrindeau/caddy-macos-gui/main/install-caddy-gui.sh | bash
