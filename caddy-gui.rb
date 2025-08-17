@@ -1,6 +1,6 @@
 cask "caddy-gui" do
   version "1.0.0"
-  sha256 "772a5b2dba8110d5aabbc37e4f2aeac5864e976f5ed3d2cc89218871251055c1"
+  sha256 "879301e6955581b7ab757336f9c8778f744e9d8ac2099f9e2dcf8a1df7e24ac9"
 
   url "https://github.com/joachimBrindeau/caddy-macos-gui/releases/download/v#{version}/Caddy.GUI_#{version}_aarch64.dmg"
   name "Caddy GUI"
