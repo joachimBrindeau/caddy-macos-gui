@@ -2,14 +2,24 @@
 
 A clean, modern GUI for managing Caddy server configurations on macOS.
 
+## Screenshots
+
+![Main Interface](docs/screenshots/main.png)
+*Simple and clean interface for managing Caddy sites*
+
+![Settings](docs/screenshots/settings.png)
+*Configure system tray, dock visibility, and startup options*
+
 ## Features
 
-- 🎯 Simple Caddyfile editor with syntax highlighting
+- 🎯 Simple site management interface for Caddy
 - 🔄 Live reload configuration
 - 🎨 Dark/Light theme support
 - 🚀 System tray integration
 - ⚙️ Auto-start on login
 - 📦 Caddy installation manager
+- ✏️ Easy domain and port configuration
+- 🔀 Enable/disable sites with one click
 
 ## Development
 
