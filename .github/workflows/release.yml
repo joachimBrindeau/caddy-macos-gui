@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        platform: [macos-latest]
+    runs-on: ${{ matrix.platform }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build Tauri app
+        run: npm run tauri:build
+        
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: caddy-gui-macos
+          path: src-tauri/target/release/bundle/dmg/*.dmg
+          
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: src-tauri/target/release/bundle/dmg/*.dmg
+          draft: false
+          prerelease: false
