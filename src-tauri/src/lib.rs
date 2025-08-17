@@ -245,37 +245,7 @@ fn install_caddy() -> Result<String, String> {
     }
 }
 
-#[tauri::command]
-fn uninstall_caddy() -> Result<String, String> {
-    // Stop caddy first
-    let caddy_path = find_caddy_binary();
-    Command::new(&caddy_path)
-        .arg("stop")
-        .output()
-        .ok();
-    
-    // Check if homebrew is available
-    let brew_check = Command::new("which")
-        .arg("brew")
-        .output()
-        .map_err(|e| format!("Failed to check homebrew: {}", e))?;
-    
-    if !brew_check.status.success() {
-        return Err("Cannot uninstall: Homebrew not found".to_string());
-    }
-    
-    // Uninstall via brew
-    let output = Command::new("brew")
-        .args(&["uninstall", "caddy"])
-        .output()
-        .map_err(|e| format!("Failed to uninstall caddy: {}", e))?;
-    
-    if output.status.success() {
-        Ok("Caddy uninstalled successfully".to_string())
-    } else {
-        Err(String::from_utf8_lossy(&output.stderr).to_string())
-    }
-}
+// Removed uninstall_caddy function - installation only
 
 #[tauri::command]
 fn enable_system_tray(app_handle: tauri::AppHandle) -> Result<(), String> {
@@ -406,7 +376,6 @@ pub fn run() {
             save_settings,
             check_caddy_installed,
             install_caddy,
-            uninstall_caddy,
             start_caddy_service,
             stop_caddy_service,
             enable_system_tray,

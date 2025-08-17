@@ -180,22 +180,6 @@ export function SettingsDialog() {
     }
   }
 
-  const uninstallCaddy = async () => {
-    if (!confirm('Are you sure you want to uninstall Caddy? This will remove Caddy from your system.')) {
-      return
-    }
-    
-    try {
-      setLoading(true)
-      await invoke('uninstall_caddy')
-      setCaddyInstalled(false)
-      toast.success('Caddy uninstalled successfully')
-    } catch (error) {
-      toast.error('Failed to uninstall Caddy: ' + error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const selectCaddyfile = async () => {
     try {
@@ -274,7 +258,7 @@ export function SettingsDialog() {
                     <span className="text-yellow-600 dark:text-yellow-400">Caddy is not installed</span>
                   )}
                 </div>
-                {!caddyInstalled ? (
+                {!caddyInstalled && (
                   <Button
                     onClick={installCaddy}
                     disabled={loading}
@@ -282,16 +266,6 @@ export function SettingsDialog() {
                   >
                     <Download className="h-4 w-4 mr-2" />
                     Install Caddy
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    onClick={uninstallCaddy}
-                    disabled={loading}
-                    className="w-full"
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Uninstall Caddy
                   </Button>
                 )}
               </div>
