@@ -201,11 +201,11 @@ function App() {
         </div>
         
         <Card className="flex-1 flex flex-col">
-          <CardContent className="flex-1 overflow-auto p-0">
+          <CardContent className="flex-1 flex flex-col p-0">
                   {sites.length > 0 ? (
-                    <div className="h-full relative">
+                    <div className="flex-1 overflow-auto">
                       <Table>
-                      <TableHeader className="sticky top-0 bg-background z-10">
+                      <TableHeader className="sticky top-0 bg-background border-b">
                         <TableRow>
                           <TableHead>Domain</TableHead>
                           <TableHead>Port</TableHead>
