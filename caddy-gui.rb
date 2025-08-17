@@ -11,18 +11,15 @@ cask "caddy-gui" do
 
   app "Caddy GUI.app"
 
-  # Post-install: Remove quarantine attributes automatically
   postflight do
     system_command "/usr/bin/xattr",
                    args: ["-cr", "#{appdir}/Caddy GUI.app"],
                    sudo: false
   end
 
-  # Uninstall: Clean up app data
   zap trash: [
     "~/Library/Application Support/com.joachim.caddy-gui",
     "~/Library/Preferences/com.joachim.caddy-gui.plist",
-    "~/Library/Saved Application State/com.joachim.caddy-gui.savedState",
     "~/.caddy-gui",
   ]
 end
