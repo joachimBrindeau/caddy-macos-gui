@@ -25,7 +25,7 @@ If you don't have Homebrew installed, install it first:
 #### Step 2: Install Caddy GUI
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/joachimBrindeau/caddy-macos-gui/main/caddy-gui.rb | brew install --cask /dev/stdin
+curl -sSL https://raw.githubusercontent.com/joachimBrindeau/caddy-macos-gui/main/install.sh | bash
 ```
 
 ### Common Commands

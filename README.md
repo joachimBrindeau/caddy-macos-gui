@@ -13,7 +13,7 @@ A clean, modern GUI for managing Caddy server configurations on macOS.
 ### Step 2: Install Caddy GUI
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/joachimBrindeau/caddy-macos-gui/main/caddy-gui.rb | brew install --cask /dev/stdin
+curl -sSL https://raw.githubusercontent.com/joachimBrindeau/caddy-macos-gui/main/install.sh | bash
 ```
 
 That's it! Caddy GUI is now installed and ready to use. No Gatekeeper warnings, no manual fixes needed.

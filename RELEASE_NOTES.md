@@ -13,7 +13,7 @@ We've simplified installation to use Homebrew exclusively for the best user expe
 
 **Step 2:** Install Caddy GUI
 ```bash
-curl -sSL https://raw.githubusercontent.com/joachimBrindeau/caddy-macos-gui/main/caddy-gui.rb | brew install --cask /dev/stdin
+curl -sSL https://raw.githubusercontent.com/joachimBrindeau/caddy-macos-gui/main/install.sh | bash
 ```
 
 ## ✨ Features
